@@ -1,11 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>秋叶便签</title>
 <style>
-/* 弹窗秋天色调 */
+body {
+  margin: 0;
+  background: #fff8f0;
+  font-family: "Microsoft YaHei","PingFang SC",sans-serif;
+  overflow: hidden;
+  position: relative;
+  height: 100vh;
+}
+
+.note {
+  position: absolute;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform .25s;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10;
+}
+.note:hover {
+  transform: scale(1.05);
+}
+
 .popup {
   position: fixed;
   top: 50%;
-  left: 30%; /* 默认靠左 */
+  left: 30%;
   transform: translate(-50%, -50%) scale(0.95);
-  background: linear-gradient(135deg, #FFD580, #FFB347); /* 秋天橙黄渐变 */
+  background: linear-gradient(135deg, #FFD580, #FFB347);
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.2);
   padding: 25px 50px;
@@ -19,8 +49,25 @@
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
+.final {
+  font-size: 26px;
+  color: #FF4500;
+  background: linear-gradient(135deg,#FFD580,#FF8C00);
+  box-shadow: 0 0 35px rgba(255,105,180,0.5);
+}
 
-/* 🍁 掉落叶子 */
+.title {
+  position: fixed;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: #444;
+  z-index: 1000;
+}
+
+/* 秋叶样式 */
 .leaf {
   position: fixed;
   width: 25px;
@@ -28,59 +75,109 @@
   pointer-events: none;
   z-index: 99999;
   background: url('https://cdn-icons-png.flaticon.com/512/616/616408.png') no-repeat center/contain;
-  animation: fall linear forwards;
-}
-@keyframes fall {
-  0% { transform: translateY(-50px) rotate(0deg); opacity:1; }
-  100% { transform: translateY(100vh) rotate(360deg); opacity:0; }
+  will-change: transform;
 }
 </style>
+</head>
+<body>
+<div class="title">一份神秘礼物 🍁</div>
 
 <script>
-// 修改 showPopup：随机靠左
+const msgs = [
+"愿你所有烦恼都消失","你超厉害的，我相信你","愿你睡个好觉","每天有小惊喜",
+"吃饭有幸福","早安 不熬夜","别给自己太大压力","今天也要加油哦！",
+"多喝点水，多吃水果","保持微笑呦","不开心就跟我说","梦想成真","天冷了，多穿衣服",
+"早点休息，手机及时充电","付出有好结果","有问题慢慢解决","做件喜欢的小事",
+"平凡也自在","顺顺利利","备点零食饿了垫垫肚子","加油，你一定能做好",
+"别熬夜","每天开心点","别纠结过去","慢慢会好起来","遇见好天气","保持好心情",
+"放松一下","吃点好吃的","向前看","勇敢一点","保持笑容","别忘了休息","今天也要加油",
+"早点休息","祝你好运","愿你笑容常在","不顺找我","emo了，睡一觉","顺利顺利"
+];
+
+const colors = ["#FFF5E6","#FFEFE6","#FFF8E0","#FFE8B2","#FFD9A6","#FFB347"];
+const num = 120;
+const body = document.body;
+let clickCount = 0;
+
+// 生成便签
+for(let i=0;i<num;i++){
+  const div = document.createElement("div");
+  div.className="note";
+  div.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  div.style.background = colors[Math.floor(Math.random()*colors.length)];
+  div.style.left = Math.random()*85+"%";
+  div.style.top = Math.random()*85+"%";
+  div.style.transform = `rotate(${(Math.random()*15-7.5).toFixed(1)}deg)`;
+  div.style.zIndex = 10 + Math.floor(Math.random()*100);
+  body.appendChild(div);
+
+  div.onclick = ()=>{
+    if(clickCount <5){
+      showPopup(div.textContent);
+      createLeaf(div); // 从便签位置掉落
+    }
+    clickCount++;
+    if(clickCount>=5){
+      clearAll();
+      showPopup("你一定可以的 ❤️", true);
+      for(let i=0;i<20;i++) createLeaf(); // 大量落叶
+    }
+  };
+}
+
+// 弹窗显示
 function showPopup(text, final=false){
   if(final){
     document.querySelectorAll(".popup").forEach(p=>p.remove());
   }
   const p = document.createElement("div");
-  p.className = "popup" + (final ? " final" : "");
-  p.textContent = text;
-
-  // 随机靠左位置
-  const leftPercent = Math.random() * 30 + 10; // 10%~40%之间
+  p.className="popup"+(final?" final":"");
+  p.textContent=text;
+  // 随机靠左
+  const leftPercent = Math.random()*30 + 10;
   p.style.left = leftPercent + "%";
   body.appendChild(p);
   requestAnimationFrame(()=>p.classList.add("show"));
   if(!final){
     setTimeout(()=>{
       p.classList.remove("show");
-      setTimeout(()=>p.remove(), 300);
-    }, 1000);
+      setTimeout(()=>p.remove(),300);
+    },1000);
   }
 }
 
-// 点击便签触发 🍁 掉落
-function createLeaf(){
+// 清空便签
+function clearAll(){
+  document.querySelectorAll(".note").forEach(n=>n.remove());
+}
+
+// 创建秋叶
+function createLeaf(source=null){
   const leaf = document.createElement("div");
-  leaf.className = "leaf";
-  leaf.style.left = Math.random() * 100 + "vw";
-  leaf.style.animationDuration = (2 + Math.random() * 2) + "s";
-  document.body.appendChild(leaf);
-  setTimeout(()=>leaf.remove(), 4000);
-}
+  leaf.className="leaf";
+  // 初始位置在便签中心或随机
+  let rect = source ? source.getBoundingClientRect() : {left:Math.random()*window.innerWidth, top:0};
+  leaf.style.left = (rect.left + (source?rect.width/2:0)) + "px";
+  leaf.style.top = (rect.top + (source?rect.height/2:0)) + "px";
+  body.appendChild(leaf);
 
-// 修改便签点击事件
-div.onclick = ()=>{
-  if(clickCount < 5){
-    showPopup(div.textContent);
-    createLeaf(); // 点击便签生成叶子
+  const duration = 3000 + Math.random()*2000;
+  const rotate = 360 + Math.random()*360;
+  const xOffset = (Math.random()-0.5)*100; // 横向轻微漂移
+
+  let start = null;
+  function animate(timestamp){
+    if(!start) start=timestamp;
+    const progress = (timestamp-start)/duration;
+    if(progress<1){
+      leaf.style.transform = `translate(${xOffset*progress}px, ${window.innerHeight*progress}px) rotate(${rotate*progress}deg)`;
+      requestAnimationFrame(animate);
+    }else{
+      leaf.remove();
+    }
   }
-  clickCount++;
-  if(clickCount >= 5){
-    clearAll();
-    showPopup("你一定可以的 ❤️", true);
-    // 落更多叶子庆祝
-    for(let i=0;i<20;i++) createLeaf();
-  }
-};
+  requestAnimationFrame(animate);
+}
 </script>
+</body>
+</html>
