@@ -8,24 +8,29 @@
 body {
   margin: 0;
   background: #fffdf9;
-  font-family: "Microsoft YaHei","PingFang SC",sans-serif;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
   overflow: hidden;
+  position: relative;
+  height: 100vh;
 }
 
-/* 每个便签 */
+/* 便签样式 */
 .note {
   position: absolute;
-  padding: 8px 12px;
+  padding: 8px 18px;
   border-radius: 8px;
-  font-size: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: transform .2s;
-  word-break: break-all;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform .25s;
+  word-break: keep-all;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
   z-index: 10;
 }
-.note:hover { transform: scale(1.05); }
+.note:hover {
+  transform: scale(1.05);
+}
 
 /* 弹窗样式 */
 .popup {
@@ -33,154 +38,114 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff8f0;
-  padding: 25px 50px;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(255,182,193,0.6);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  padding: 25px 50px;
   font-size: 22px;
   text-align: center;
-  animation: fadeIn .4s ease;
-  z-index: 999999999; /* 永远置顶 */
+  animation: fadeIn .3s ease;
+  z-index: 999999;
 }
 @keyframes fadeIn {
   from {opacity: 0; transform: translate(-50%, -55%) scale(0.95);}
   to {opacity: 1; transform: translate(-50%, -50%) scale(1);}
 }
+
 .final {
-  font-size: 28px;
-  background: linear-gradient(120deg, #ffe6e6, #fff0b3);
-  box-shadow: 0 0 40px rgba(255, 105, 180, 0.6);
+  font-size: 26px;
   color: #ff4f70;
-  text-shadow: 0 0 10px rgba(255, 99, 132, 0.6);
+  background: linear-gradient(120deg, #fff0f0, #fff9d9);
+  box-shadow: 0 0 35px rgba(255, 105, 180, 0.5);
 }
 
-/* 音乐按钮 */
-#musicBtn {
+/* 顶部标题 */
+.title {
   position: fixed;
-  right: 15px;
-  bottom: 15px;
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
-  padding: 10px 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  cursor: pointer;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
   font-size: 18px;
-  transition: all .2s;
-  user-select: none;
-  z-index: 1000000000;
+  color: #444;
+  z-index: 1000;
 }
-#musicBtn:hover {
-  background: #fff0f5;
-  transform: scale(1.1);
+
+/* 柔和色调 */
+:root {
+  --c1: #fff5e6;
+  --c2: #ffeef2;
+  --c3: #f9ffe9;
+  --c4: #fffde6;
+  --c5: #f2fff9;
+  --c6: #f9f0ff;
 }
 </style>
 </head>
 <body>
-
-<!-- 背景音乐 -->
-<audio id="bgm" preload="auto" loop>
-  <source src="https://cdn.pixabay.com/download/audio/2023/03/07/audio_b62e2f5639.mp3?filename=sweet-love-14308.mp3" type="audio/mpeg">
-</audio>
-<div id="musicBtn" title="点击播放音乐 🎵">🎵</div>
+<div class="title">一份神秘礼物</div>
 
 <script>
 const msgs = [
-"愿你所有烦恼都消失","你超厉害的，我相信你","愿你睡个好觉",
-"每天有小惊喜","吃饭有幸福","早安 不熬夜","别给自己太大压力",
-"今天也要加油哦！","多喝点水，多吃水果","保持微笑呦","不开心就跟我说",
-"梦想成真","天冷了，多穿衣服","早点休息，手机及时充电","付出有好结果",
-"有问题慢慢解决","做件喜欢的小事","平凡也自在","顺顺利利",
-"备点零食饿了垫垫肚子","加油，你一定能做好","别熬夜","多吃水果林雨",
-"每天开心点","别纠结过去","慢慢会好起来","遇见好天气","保持好心情",
-"多补水","放松一下","吃点好吃的","向前看","勇敢一点","保持笑容",
-"别忘了休息","今天也要加油","早点休息","祝你好运","愿你笑容常在",
-"不顺找我","emo了，睡一觉","顺利顺利","梦想成真","今天过得开心嘛",
-"备点零食","别着急","相信自己","你超棒","别忘喝水","早点吃饭",
-"多穿衣服","平安喜乐","遇事别急","慢慢来","心态平和"
+"愿你所有烦恼都消失","你超厉害的，我相信你","愿你睡个好觉","每天有小惊喜",
+"吃饭有幸福","早安 不熬夜","别给自己太大压力","今天也要加油哦！",
+"多喝点水，多吃水果","保持微笑呦","不开心就跟我说","梦想成真","天冷了，多穿衣服",
+"早点休息，手机及时充电","付出有好结果","有问题慢慢解决","做件喜欢的小事",
+"平凡也自在","顺顺利利","备点零食饿了垫垫肚子","加油，你一定能做好",
+"别熬夜","每天开心点","别纠结过去","慢慢会好起来","遇见好天气","保持好心情",
+"放松一下","吃点好吃的","向前看","勇敢一点","保持笑容","别忘了休息","今天也要加油",
+"早点休息","祝你好运","愿你笑容常在","不顺找我","emo了，睡一觉","顺利顺利",
+"梦想成真","今天过得开心嘛","备点零食","别着急","相信自己","你超棒","别忘喝水",
+"早点吃饭","多穿衣服","平安喜乐","遇事别急","慢慢来","心态平和","早安","晚安",
+"不开心就跟我说","心态平和","路过风景","顺顺利利","保持好心情","多喝热水",
+"好心情一整天","多吃水果","多笑笑","照顾好自己","今天也要开心呀","祝你天天顺利",
+"笑口常开","早安","多喝点水","加油","平安喜乐","吃点好吃的","要开心","今天的你最棒",
+"烦恼快快消失","早点休息","睡个好觉","梦想成真","不顺找我","勇敢一点",
+"今天也要加油！","吃饭有幸福","开心每一天","天冷了别冻着","早睡早起","顺顺利利"
 ];
 
-const colors = ["#fff8f0","#fff7fb","#f8fff6","#fffdf0","#fff8f2"];
+const colors = ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"];
+const num = 120;
 const body = document.body;
-const num = 120; // ✅ 改为 120 条便签
 let clickCount = 0;
 
-// 创建随机便签
+// 生成便签
 for(let i=0; i<num; i++){
   const div = document.createElement("div");
   div.className = "note";
   div.textContent = msgs[Math.floor(Math.random()*msgs.length)];
   div.style.background = colors[Math.floor(Math.random()*colors.length)];
-
-  // 随机位置与旋转角度
-  div.style.left = Math.random()*90 + "%";
-  div.style.top = Math.random()*90 + "%";
-  div.style.transform = `rotate(${(Math.random()*20-10).toFixed(1)}deg)`;
+  div.style.left = Math.random()*85 + "%";
+  div.style.top = Math.random()*85 + "%";
+  div.style.transform = `rotate(${(Math.random()*15-7.5).toFixed(1)}deg)`;
+  div.style.zIndex = 10 + Math.floor(Math.random()*100);
   body.appendChild(div);
 
-  // 点击便签事件
-  div.addEventListener("click", () => {
+  // 点击事件
+  div.onclick = ()=>{
     showPopup(div.textContent);
     clickCount++;
     if(clickCount >= 5){
-      removeAllNotes();
+      clearAll();
       showPopup("你一定可以的 ❤️", true);
     }
-  });
+  };
 }
 
-// 显示弹窗（置顶）
+// 显示弹窗
 function showPopup(text, final=false){
-  // 移除旧弹窗
-  document.querySelectorAll(".popup:not(.final)").forEach(p => p.remove());
-
-  const popup = document.createElement("div");
-  popup.className = "popup" + (final ? " final" : "");
-  popup.textContent = text;
-  popup.style.zIndex = final ? "1000000000" : "999999999";
-  body.appendChild(popup);
-
-  if(!final){
-    setTimeout(()=>popup.remove(), 1000);
-  }
+  document.querySelectorAll(".popup").forEach(p=>p.remove());
+  const p = document.createElement("div");
+  p.className = "popup" + (final ? " final" : "");
+  p.textContent = text;
+  body.appendChild(p);
+  if(!final) setTimeout(()=>p.remove(),1000);
 }
 
-// 清除所有便签
-function removeAllNotes(){
-  document.querySelectorAll(".note").forEach(n => n.remove());
+// 清空便签
+function clearAll(){
+  document.querySelectorAll(".note").forEach(n=>n.remove());
 }
-
-// 🎵 音乐控制
-const bgm = document.getElementById("bgm");
-const btn = document.getElementById("musicBtn");
-let playing = false;
-
-btn.onclick = () => {
-  if(!playing){
-    bgm.play().then(()=>{
-      playing = true;
-      btn.textContent = "⏸️";
-      btn.title = "点击暂停音乐";
-    }).catch(()=>{
-      alert("请点击页面任意位置以启用音乐播放");
-    });
-  }else{
-    bgm.pause();
-    playing = false;
-    btn.textContent = "🎵";
-    btn.title = "点击播放音乐";
-  }
-};
-
-// 首次点击任意位置尝试自动播放音乐（Edge兼容）
-document.body.addEventListener("click", () => {
-  if(!playing){
-    bgm.play().then(()=>{
-      playing = true;
-      btn.textContent = "⏸️";
-    }).catch(()=>{});
-  }
-}, {once: true});
 </script>
-
 </body>
 </html>
