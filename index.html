@@ -8,54 +8,44 @@
 body {
   margin: 0;
   background: #fffdf9;
-  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-family: "Microsoft YaHei","PingFang SC",sans-serif;
   overflow: hidden;
-  animation: fadeInBody 2s ease;
-}
-@keyframes fadeInBody {
-  from {opacity: 0;}
-  to {opacity: 1;}
 }
 
+/* 每个便签 */
 .note {
   position: absolute;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: transform .2s, opacity .3s;
+  transition: transform .2s;
   word-break: break-all;
   cursor: pointer;
-  opacity: 0;
-  animation: noteAppear 1s ease forwards;
+  user-select: none;
+  z-index: 10;
 }
-@keyframes noteAppear {
-  from {opacity: 0; transform: scale(0.8);}
-  to {opacity: 1; transform: scale(1);}
-}
-.note:hover {
-  transform: scale(1.05);
-}
+.note:hover { transform: scale(1.05); }
 
+/* 弹窗样式 */
 .popup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: #fff8f0;
-  padding: 20px 40px;
+  padding: 25px 50px;
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(255,182,193,0.5);
+  box-shadow: 0 0 30px rgba(255,182,193,0.6);
   font-size: 22px;
   text-align: center;
-  animation: fadeInPopup .4s ease;
-  z-index: 99999; /* 🔥 永远在最上层 */
+  animation: fadeIn .4s ease;
+  z-index: 999999999; /* 永远置顶 */
 }
-@keyframes fadeInPopup {
-  from {opacity: 0; transform: translate(-50%, -60%) scale(0.9);}
+@keyframes fadeIn {
+  from {opacity: 0; transform: translate(-50%, -55%) scale(0.95);}
   to {opacity: 1; transform: translate(-50%, -50%) scale(1);}
 }
-
 .final {
   font-size: 28px;
   background: linear-gradient(120deg, #ffe6e6, #fff0b3);
@@ -77,7 +67,7 @@ body {
   font-size: 18px;
   transition: all .2s;
   user-select: none;
-  z-index: 999999; /* 🎵 音乐按钮也保持最上 */
+  z-index: 1000000000;
 }
 #musicBtn:hover {
   background: #fff0f5;
@@ -87,7 +77,7 @@ body {
 </head>
 <body>
 
-<!-- 🎵 背景音乐 -->
+<!-- 背景音乐 -->
 <audio id="bgm" preload="auto" loop>
   <source src="https://cdn.pixabay.com/download/audio/2023/03/07/audio_b62e2f5639.mp3?filename=sweet-love-14308.mp3" type="audio/mpeg">
 </audio>
@@ -104,50 +94,53 @@ const msgs = [
 "每天开心点","别纠结过去","慢慢会好起来","遇见好天气","保持好心情",
 "多补水","放松一下","吃点好吃的","向前看","勇敢一点","保持笑容",
 "别忘了休息","今天也要加油","早点休息","祝你好运","愿你笑容常在",
-"不顺找我","emo了，睡一觉","顺利顺利","今天过得开心嘛",
+"不顺找我","emo了，睡一觉","顺利顺利","梦想成真","今天过得开心嘛",
 "备点零食","别着急","相信自己","你超棒","别忘喝水","早点吃饭",
 "多穿衣服","平安喜乐","遇事别急","慢慢来","心态平和"
 ];
 
 const colors = ["#fff8f0","#fff7fb","#f8fff6","#fffdf0","#fff8f2"];
 const body = document.body;
-const num = 90;
+const num = 120; // ✅ 改为 120 条便签
 let clickCount = 0;
 
-// 创建便签
+// 创建随机便签
 for(let i=0; i<num; i++){
   const div = document.createElement("div");
   div.className = "note";
   div.textContent = msgs[Math.floor(Math.random()*msgs.length)];
   div.style.background = colors[Math.floor(Math.random()*colors.length)];
+
+  // 随机位置与旋转角度
   div.style.left = Math.random()*90 + "%";
   div.style.top = Math.random()*90 + "%";
   div.style.transform = `rotate(${(Math.random()*20-10).toFixed(1)}deg)`;
-  div.style.zIndex = 100 + i;
+  body.appendChild(div);
 
-  div.onclick = () => {
-    showPopup(div.textContent); // 显示该便签的内容
+  // 点击便签事件
+  div.addEventListener("click", () => {
+    showPopup(div.textContent);
     clickCount++;
     if(clickCount >= 5){
       removeAllNotes();
       showPopup("你一定可以的 ❤️", true);
     }
-  };
-
-  body.appendChild(div);
+  });
 }
 
-// 显示弹窗
+// 显示弹窗（置顶）
 function showPopup(text, final=false){
-  // 先清除之前的普通弹窗
+  // 移除旧弹窗
   document.querySelectorAll(".popup:not(.final)").forEach(p => p.remove());
 
   const popup = document.createElement("div");
   popup.className = "popup" + (final ? " final" : "");
   popup.textContent = text;
+  popup.style.zIndex = final ? "1000000000" : "999999999";
   body.appendChild(popup);
+
   if(!final){
-    setTimeout(() => popup.remove(), 1000);
+    setTimeout(()=>popup.remove(), 1000);
   }
 }
 
@@ -156,7 +149,7 @@ function removeAllNotes(){
   document.querySelectorAll(".note").forEach(n => n.remove());
 }
 
-// 🎵 音乐控制（Edge兼容）
+// 🎵 音乐控制
 const bgm = document.getElementById("bgm");
 const btn = document.getElementById("musicBtn");
 let playing = false;
@@ -166,20 +159,20 @@ btn.onclick = () => {
     bgm.play().then(()=>{
       playing = true;
       btn.textContent = "⏸️";
-      btn.title = "点击暂停音乐 ⏸️";
-    }).catch(err=>{
-      alert("请点击页面任意位置以允许播放音乐 🎵");
+      btn.title = "点击暂停音乐";
+    }).catch(()=>{
+      alert("请点击页面任意位置以启用音乐播放");
     });
   }else{
     bgm.pause();
     playing = false;
     btn.textContent = "🎵";
-    btn.title = "点击播放音乐 🎵";
+    btn.title = "点击播放音乐";
   }
 };
 
-// 若用户点击页面任意处，也尝试播放音乐
-document.body.addEventListener('click', ()=>{
+// 首次点击任意位置尝试自动播放音乐（Edge兼容）
+document.body.addEventListener("click", () => {
   if(!playing){
     bgm.play().then(()=>{
       playing = true;
