@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-    <title>暖愈时光~</title>
+    <title>爱心~</title>
     <style>
         :root{ --glow-r1:10px; --glow-r2:22px; }
         html,body{
@@ -111,8 +111,8 @@
             position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
             font-weight:800; letter-spacing:.12em;
             font-size:clamp(18px,4vmin,28px);
-            color:rgba(180,160,255,.9);
-            text-shadow:0 0 18px rgba(150,130,255,.35);
+            color:rgba(255,160,200,.9);
+            text-shadow:0 0 18px rgba(255,130,200,.35);
             opacity:.0; pointer-events:none;
             transition: opacity 0.5s; 
         }
@@ -147,22 +147,22 @@
             font-size: 1.2em;
             font-weight: bold;
             color: #fff;
-            background: linear-gradient(135deg, #b095ff, #c095ff);
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(176, 149, 255, 0.5);
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.5);
             transition: transform 0.2s, box-shadow 0.2s;
         }
         #start-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(176, 149, 255, 0.7);
+            box-shadow: 0 6px 20px rgba(255, 117, 140, 0.7);
         }
         #overlay-text {
             font-size: clamp(20px, 6vmin, 32px);
             letter-spacing: 0.1em;
             margin-bottom: 10px;
-            color: #e4d6ff;
+            color: #ffc4d6;
         }
 
         /* 卡片边缘扩散光效 */
@@ -213,11 +213,11 @@
 </head>
 <body>
     <div class="stage" id="stage">
-        <div class="center-title" id="title">陪你慢慢走 ♥</div>
+        <div class="center-title" id="title">for you ♥</div>
     </div>
     
     <div id="welcome-overlay">
-        <div id="overlay-text">这里有一份神秘礼物，确定要接收吗？</div>
+        <div id="overlay-text">您有一份神秘礼物，确定要打开吗？</div>
         <button id="start-button">确定</button>
     </div>
     
@@ -267,11 +267,11 @@ function hexToRgba(hex,alpha=1){
 
 function randomStyle(){
     const arr=[
-        ['#b095ff','#c095ff'], ['#a1b8d1','#c2d8eb'],
-        ['#d3e0f5','#a0bbd3'], ['#84d0f0','#8fbcd4'],
-        ['#a0b4fb','#97a6f5'], ['#4fbbfe','#00c2fe'],
-        ['#43b9e7','#38c9f9'], ['#a0c7fa','#90b4fe'],
-        ['#30bccd','#338897'], ['#5ec7df','#90b4ca']
+        ['#ff758c','#ff7eb3'], ['#a18cd1','#fbc2eb'],
+        ['#f6d365','#fda085'], ['#84fab0','#8fd3f4'],
+        ['#f093fb','#f5576c'], ['#4facfe','#00f2fe'],
+        ['#43e97b','#38f9d7'], ['#fa709a','#fee140'],
+        ['#30cfd0','#330867'], ['#5ee7df','#b490ca']
     ];
     const [c1,c2]=arr[Math.floor(Math.random()*arr.length)];
     return {
@@ -281,12 +281,12 @@ function randomStyle(){
     };
 }
 
-// 柔和淡紫色样式（适配安慰氛围）
+// 粉红色样式
 function pinkStyle(){
     return {
-        bg: 'linear-gradient(135deg, #b095ff, #c095ff)',
-        glow1: hexToRgba('#b095ff', 0.55),
-        glow2: hexToRgba('#c095ff', 0.35)
+        bg: 'linear-gradient(135deg, #ff758c, #ff7eb3)',
+        glow1: hexToRgba('#ff758c', 0.55),
+        glow2: hexToRgba('#ff7eb3', 0.35)
     };
 }
 
@@ -306,4 +306,185 @@ function centerYOffset(){
 function heartXY(t){
     const s = heartScale();
     const x = s * (16 * Math.sin(t)**3);
-    const y =
+    const y = -s * (13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+    return {x: x+'px', y: (y + centerYOffset())+'px'};
+}
+
+// 创建卡片边缘扩散光效
+function createEdgeGlow(parentElement) {
+    const edgeGlow = document.createElement('div');
+    edgeGlow.className = 'edge-glow';
+    parentElement.appendChild(edgeGlow);
+    
+    // 延迟显示光效
+    setTimeout(() => {
+        edgeGlow.style.opacity = 1;
+    }, 300);
+}
+
+function createMsg(i,total){
+    const el = document.createElement('div');
+    el.className = 'msg';
+    
+    const isLockedCard = (i === 0);
+    if (isLockedCard) { 
+        el.classList.add('final-lock');
+    }
+
+    const d = directions[Math.floor(Math.random()*directions.length)];
+    el.style.setProperty('--dx', d.dx);
+    el.style.setProperty('--dy', d.dy);
+    el.style.setProperty('--rot', rand(-55,55)+'deg');
+
+    const baseDur = rand(8.5,10.2); 
+    el.style.setProperty('--dur', baseDur+'s');
+    el.style.setProperty('--delay', (i*0.11 + rand(0,0.35))+'s');
+    
+    // 如果是最后一个卡片，使用粉红色样式
+    const sty = isLockedCard ? pinkStyle() : randomStyle();
+    el.style.setProperty('--bg', sty.bg);
+    el.style.setProperty('--glow1', sty.glow1);
+    el.style.setProperty('--glow2', sty.glow2);
+
+    const t = (i / total) * Math.PI * 2;
+    const {x,y} = heartXY(t);
+    el.style.setProperty('--heart-x', x);
+    el.style.setProperty('--heart-y', y);
+    el.style.setProperty('--heart-rot', rand(-18,18)+'deg');
+
+    const span = document.createElement('span');
+    span.className = 'text';
+    span.textContent = isLockedCard ? '你是独一无二的' : tips[Math.floor(Math.random()*tips.length)];
+    el.appendChild(span);
+
+    const delay = parseFloat(el.style.getPropertyValue('--delay'));
+    const dur   = parseFloat(el.style.getPropertyValue('--dur'));
+    const switchAt = delay + dur * 0.86;
+    const switchTimer = setTimeout(()=>{ el.classList.add('heart-mode'); }, switchAt*1000);
+
+    el.addEventListener('animationend',function handler(event){
+        if (event.animationName !== 'flight') return;
+
+        clearTimeout(switchTimer);
+        el.classList.add('heart-mode','locked','pulse');
+        el.style.willChange = 'auto'; 
+        
+        this.removeEventListener('animationend', handler);
+
+        if (isLockedCard) {
+            // 为最后一个卡片添加边缘扩散光效
+            setTimeout(() => {
+                createEdgeGlow(el);
+            }, 300);
+            
+            setTimeout(()=>{ title.style.opacity = 0.95; }, 500); 
+
+        } else {
+            const onHeartDelay = rand(3000, 6000); 
+            
+            setTimeout(() => {
+                el.classList.remove('pulse'); 
+                el.classList.add('fade-out'); 
+                
+                el.addEventListener('animationend', function fadeHandler(event) {
+                    if (event.animationName !== 'fade-out') return; 
+
+                    this.removeEventListener('animationend', fadeHandler);
+                    
+                    this.style.display = 'none'; 
+                    this.style.willChange = 'unset';
+                    this.style.background = 'transparent';
+                    this.style.filter = 'none';
+
+                    totalRemoved++;
+                    const finalDelay = (totalRemoved === (totalCurrent - 1)) ? 2000 : 1000; 
+
+                    setTimeout(() => {
+                        this.remove();
+                    }, finalDelay);
+
+                }, { once: true });
+
+            }, onHeartDelay); 
+        }
+        
+    }, {once:true});
+
+    stage.appendChild(el);
+}
+
+function play(){
+    stage.querySelectorAll('.msg').forEach(n=>n.remove());
+    title.style.opacity = 0;
+
+    const minDim = Math.min(window.innerWidth, window.innerHeight);
+    let TOTAL;
+    
+    if (minDim <= 420) {
+        TOTAL = 55; 
+    } else if (minDim <= 720) {
+        TOTAL = 85; 
+    } else {
+        TOTAL = 100;
+    }
+    
+    totalCurrent = TOTAL;
+    totalRemoved = 0; 
+    
+    for(let i=0;i<TOTAL;i++) createMsg(i,TOTAL);
+}
+
+function playMusic() {
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(error => {
+        console.error('音乐播放失败:', error);
+    });
+}
+
+// 处理全屏兼容性
+function requestFullScreen(element) {
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) { /* Firefox */
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { /* IE/Edge */
+        element.msRequestFullscreen();
+    }
+}
+
+
+function init() {
+    // 1. 播放音乐
+    playMusic();
+    // 3. 开始卡片动画
+    play();
+}
+
+startButton.addEventListener('click', () => {
+    // 1. 尝试进入全屏模式 (必须由用户点击触发)
+    requestFullScreen(document.documentElement); 
+    
+    // 2. 移除弹窗
+    overlay.classList.add('hidden');
+    
+    // 3. 启动动画和音乐
+    init();
+
+    // 延时移除 DOM 元素
+    setTimeout(() => {
+        overlay.remove(); 
+    }, 500); 
+});
+
+
+// 窗口大小变化防抖重绘
+let resizeTimer;
+window.addEventListener('resize', ()=>{ 
+    clearTimeout(resizeTimer); 
+    resizeTimer = setTimeout(()=> play(), 150); 
+});
+</script>
+</body>
+</html>
